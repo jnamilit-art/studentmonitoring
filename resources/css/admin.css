@@ -1,0 +1,289 @@
+.management-card__title {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.management-card__title i {
+    font-size: 1.9rem;
+    color: var(--brand);
+    margin-top: 4px;
+}
+
+.grade-level-card {
+    transition: box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.grade-level-card--expanded {
+    border-color: rgba(53, 51, 209, 0.28);
+    box-shadow: var(--shadow-md);
+}
+
+.grade-level-card--editing {
+    border-color: rgba(53, 51, 209, 0.45);
+    box-shadow: var(--shadow-md);
+}
+
+.grade-level-card__toggle {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    text-align: left;
+}
+
+.grade-level-card__title {
+    flex: 1;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.grade-level-card__meta {
+    font-size: 0.98rem;
+    color: #68748a;
+    font-weight: 700;
+}
+
+.grade-level-card__chevron {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--surface-tint);
+    color: var(--brand);
+    font-size: 1.6rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.grade-level-card__body {
+    display: grid;
+    gap: 18px;
+    margin-top: 22px;
+}
+
+.grade-level-panel {
+    background: linear-gradient(180deg, #f7f9ff 0%, #eef4ff 100%);
+    border: 1px solid #dfe8f6;
+    border-radius: 18px;
+    padding: 20px;
+}
+
+.grade-level-panel__title {
+    margin: 0 0 14px;
+    color: var(--brand);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.grade-level-panel__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.grade-level-panel__label {
+    color: #667085;
+    font-weight: 700;
+}
+
+.grade-level-teacher {
+    border: 1px solid #e6ebf5;
+    border-radius: 14px;
+    background: #fff;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    color: #3c4558;
+    line-height: 1.55;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.grade-level-teacher strong {
+    color: #1f2736;
+}
+
+.grade-level-teacher__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.grade-level-teacher__form {
+    margin-top: 10px;
+}
+
+.management-table-wrap {
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid rgba(197, 209, 227, 0.72);
+    border-radius: 18px;
+    box-shadow: var(--shadow-sm);
+}
+
+.management-table {
+    width: 100%;
+    min-width: 840px;
+    border-collapse: collapse;
+}
+
+.management-table th,
+.management-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e6edf7;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.management-table th {
+    background: #f3f6fb;
+    color: #3c4658;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.management-table tbody tr {
+    transition: background-color 0.18s ease;
+}
+
+.management-table tbody tr:hover {
+    background: #f8faff;
+}
+
+.management-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.management-table select {
+    min-height: 48px;
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background-color: #fff;
+    color: var(--ink);
+    padding: 10px 42px 10px 14px;
+}
+
+.teacher-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.teacher-summary-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 88px;
+    padding: 20px 22px;
+    border: 1px solid rgba(197, 209, 227, 0.72);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+}
+
+.teacher-summary-card__label {
+    color: #667085;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.teacher-summary-card strong {
+    color: var(--brand);
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.teacher-summary-card--attention strong {
+    color: #d97706;
+}
+
+.teacher-table-wrap {
+    border-radius: 20px;
+}
+
+.teacher-identity {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 220px;
+}
+
+.teacher-avatar {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--brand), #4b97cf);
+    color: #fff;
+    font-weight: 800;
+}
+
+.teacher-email {
+    color: #4e5768;
+    min-width: 230px;
+}
+
+.teacher-grade-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: #eaf8f0;
+    color: #15603a;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.teacher-grade-pill--empty {
+    background: #fff7ed;
+    color: #b45309;
+}
+
+.teacher-select-cell {
+    min-width: 230px;
+}
+
+.teacher-grade-select {
+    max-width: 260px;
+}
+
+.teacher-save-button {
+    min-width: 92px;
+}
+
+.teacher-save-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.62;
+}
+
+@media (max-width: 900px) {
+    .grade-level-card__title,
+    .grade-level-panel__row,
+    .grade-level-teacher {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .teacher-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../style.css"> <!-- Link to original stylesheet for shared styles -->
+    <link rel="stylesheet" href="admin_style.css"> <!-- Link to new admin-specific stylesheet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="logo-container">
+            <img src="../images/pilot logo.png" alt="Pilot Logo" class="logo">
+        </div>
+        <nav class="main-nav">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#features">About</a>
+            <a href="../index.html#contact">Contact</a>
+        </nav>
+    </header>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal-overlay">
+        <div class="form-container">
+            <span id="close-admin-modal-btn" class="close-btn">&times;</span>
+            <!-- Admin Login Form -->
+            <div id="admin-login-form" class="form-wrapper">
+                <h2>Admin Login</h2>
+                <form id="admin-login-form-element" action="#" method="POST">
+                    <div class="input-group"><label for="admin-login-email">Username</label><input type="text" id="admin-login-email" name="username" required></div>
+                    <div class="input-group"><label for="admin-login-password">Password</label><input type="password" id="admin-login-password" name="password" required></div>
+                    <button type="submit" class="btn">Log In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard (Hidden by default) -->
+    <main id="admin-dashboard-panel" style="display: none;">
+        <div class="dashboard-container">
+            <h1>Admin Dashboard</h1>
+            <p>Welcome, Admin! You can manage the school system from here.</p>
+            <div class="dashboard-grid">
+                <div id="manage-announcements-card" class="dashboard-card clickable">
+                    <h3><i class="fas fa-bullhorn"></i> Manage Announcements</h3>
+                    <p>Add, edit, or delete school-wide announcements.</p>
+                </div>
+                <div id="manage-grades-card" class="dashboard-card clickable">
+                    <h3><i class="fas fa-graduation-cap"></i> Manage Grades</h3>
+                    <p>Update and manage student grades and records.</p>
+                </div>
+                <div id="manage-attendance-card" class="dashboard-card clickable">
+                    <h3><i class="fas fa-calendar-check"></i> Manage Attendance</h3>
+                    <p>Review and manage student attendance records.</p>
+                </div>
+                <div id="manage-behavior-card" class="dashboard-card clickable">
+                    <h3><i class="fas fa-comments"></i> Manage Behavior</h3>
+                    <p>Log student behavior and participation notes.</p>
+                </div>
+                <div id="manage-students-card" class="dashboard-card clickable">
+                    <h3><i class="fas fa-user-cog"></i> Manage Students</h3>
+                    <p>Add, view, or remove students from the system.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Admin: Manage Announcements Panel (Hidden by default) -->
+    <main id="manage-announcements-panel" style="display: none;">
+        <div class="dashboard-container">
+            <div class="admin-management-section">
+                <h2>Manage Announcements</h2>
+                <div class="admin-form-container">
+                    <h3>Add New Announcement</h3>
+                    <form id="add-announcement-form">
+                        <div class="form-group">
+                            <label for="announcement-title">Title</label>
+                            <input type="text" id="announcement-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="announcement-content">Content</label>
+                            <textarea id="announcement-content" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Add Announcement</button>
+                    </form>
+                </div>
+                <div class="admin-list-container">
+                    <h3>Existing Announcements</h3>
+                    <div id="admin-announcements-list"></div>
+                </div>
+            </div>
+            <button id="back-to-admin-dashboard-btn" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Admin Dashboard</button>
+        </div>
+    </main>
+
+    <!-- Admin: Manage Grades Panel (Hidden by default) -->
+    <main id="manage-grades-panel" style="display: none;">
+        <div class="dashboard-container">
+            <div class="admin-management-section">
+                <h2>Manage Student Grades</h2>
+                <div class="admin-form-container">
+                    <h3>Update Grade</h3>
+                    <form id="update-grade-form">
+                        <div class="form-group">
+                            <label for="student-name-grades">Student Name</label>
+                            <select id="student-name-grades" required>
+                                <option value="" disabled selected>Select a Student</option>
+                                <!-- Student options will be populated by script -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject-grades">Subject</label>
+                            <select id="subject-grades" required>
+                                <option value="" disabled selected>Select a Subject</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Science">Science</option>
+                                <option value="English">English</option>
+                                <option value="Filipino">Filipino</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="grading-period">Grading Period</label>
+                            <select id="grading-period" required>
+                                <option value="" disabled selected>Select a Period</option>
+                                <option value="1st Grading">1st Grading</option>
+                                <option value="2nd Grading">2nd Grading</option>
+                                <option value="3rd Grading">3rd Grading</option>
+                                <option value="4th Grading">4th Grading</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="grade-value">Grade</label><input type="number" id="grade-value" required></div>
+                        <button type="submit" class="btn">Update Grade</button>
+                    </form>
+                </div>
+                <div class="admin-list-container">
+                    <h3>Recent Grade Updates</h3>
+                    <div class="grades-table-container">
+                        <table class="grades-table">
+                            <thead><tr><th>Student</th><th>Subject</th><th>Period</th><th>Grade</th></tr></thead>
+                            <tbody id="recent-grades-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <button id="back-to-admin-from-grades-btn" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Admin Dashboard</button>
+        </div>
+    </main>
+
+    <!-- Admin: Manage Attendance Panel (Hidden by default) -->
+    <main id="manage-attendance-panel" style="display: none;">
+        <div class="dashboard-container">
+            <div class="admin-management-section">
+                <h2>Manage Student Attendance</h2>
+                <div class="admin-form-container">
+                    <h3>Log Attendance</h3>
+                    <form id="log-attendance-form">
+                        <div class="form-group">
+                            <label for="student-name-attendance">Student Name</label>
+                            <select id="student-name-attendance" required>
+                                <option value="" disabled selected>Select a Student</option>
+                                <!-- Student options will be populated by script -->
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="attendance-date">Date</label><input type="date" id="attendance-date" required></div>
+                        <div class="form-group">
+                            <label for="attendance-status">Status</label>
+                            <select id="attendance-status" required>
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                                <option value="Tardy">Tardy</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Log Attendance</button>
+                    </form>
+                </div>
+                <div class="admin-list-container">
+                    <h3>Recent Attendance Logs</h3>
+                    <div class="grades-table-container">
+                        <table class="grades-table">
+                            <thead><tr><th>Student</th><th>Date</th><th>Status</th></tr></thead>
+                            <tbody id="recent-attendance-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <button id="back-to-admin-from-attendance-btn" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Admin Dashboard</button>
+        </div>
+    </main>
+
+  <!-- Admin: Manage Behavior Panel (Hidden by default) -->
+    <main id="manage-behavior-panel" style="display: none;">
+        <div class="dashboard-container">
+            <div class="admin-management-section">
+                <h2>Manage Behavior & Participation</h2>
+                <div class="admin-form-container">
+                    <h3>Log New Behavior Note</h3>
+                    <form id="log-behavior-form">
+                        <div class="form-group">
+                            <label for="student-name-behavior">Student Name</label>
+                            <select id="student-name-behavior" required>
+                                <option value="" disabled selected>Select a Student</option>
+                                <!-- Student options will be populated by script -->
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="behavior-date">Date</label><input type="date" id="behavior-date" required></div>
+                        <div class="form-group"><label for="behavior-note">Behavior Note</label><textarea id="behavior-note" rows="4" required></textarea></div>
+                        <button type="submit" class="btn">Log Note</button>
+                    </form>
+                </div>
+                <div class="admin-list-container">
+                    <h3>Recent Behavior Logs</h3>
+                    <div class="grades-table-container">
+                        <table class="grades-table">
+                            <thead><tr><th>Student</th><th>Date</th><th>Note</th></tr></thead>
+                            <tbody id="recent-behavior-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <button id="back-to-admin-from-behavior-btn" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Admin Dashboard</button>
+        </div>
+    </main>
+
+    <!-- Admin: Manage Students Panel (Hidden by default) -->
+    <main id="manage-students-panel" style="display: none;">
+        <div class="dashboard-container">
+            <div class="admin-management-section">
+                <h2>Manage Students</h2>
+                <div class="admin-form-container">
+                    <h3>Add New Student</h3>
+                    <form id="add-student-form">
+                        <div class="form-group"><label for="student-full-name">Full Name</label><input type="text" id="student-full-name" required></div>
+                        <div class="form-group"><label for="parent-email">Parent's Email</label><input type="email" id="parent-email" required></div>
+                        <button type="submit" class="btn">Add Student</button>
+                    </form>
+                </div>
+                <div class="admin-list-container">
+                    <h3>Current Students</h3>
+                    <div id="admin-students-list">
+                        <!-- Student list will be populated by script -->
+                    </div>
+                </div>
+            </div>
+            <button id="back-to-admin-from-students-btn" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Admin Dashboard</button>
+        </div>
+    </main>
+    
+<!-- Admin Login/Register Modal -->
+<div id="admin-modal" class="modal-overlay">
+    <div class="form-container">
+        <span id="close-admin-modal-btn" class="close-btn">&times;</span>
+        
+        <!-- Admin Login Form -->
+        <div id="admin-login-form" class="form-wrapper">
+            <h2>Admin Login</h2>
+            <form id="admin-login-form-element" action="#" method="POST">
+                <div class="input-group">
+                    <label for="admin-login-email">Email</label>
+                    <input type="email" id="admin-login-email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="admin-login-password">Password</label>
+                    <input type="password" id="admin-login-password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Log In</button>
+            </form>
+            <p>Don't have an admin account? <a href="#" id="show-admin-register">Register here</a></p>
+        </div>
+
+        <!-- Admin Registration Form -->
+        <div id="admin-register-form" class="form-wrapper" style="display: none;">
+            <h2>Admin Registration</h2>
+            <form id="admin-register-form-element" action="#" method="POST">
+                <div class="input-group">
+                    <label for="admin-register-name">Full Name</label>
+                    <input type="text" id="admin-register-name" name="fullname" required>
+                </div>
+                <div class="input-group">
+                    <label for="admin-register-email">Email</label>
+                    <input type="email" id="admin-register-email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="admin-register-password">Password</label>
+                    <input type="password" id="admin-register-password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Register</button>
+            </form>
+            <p>Already have an account? <a href="#" id="show-admin-login">Login here</a></p>
+        </div>
+
+    </div>
+</div>
+
+<!-- Optional Script to toggle forms -->
+<script>
+document.getElementById('show-admin-register').addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('admin-login-form').style.display = 'none';
+    document.getElementById('admin-register-form').style.display = 'block';
+});
+document.getElementById('show-admin-login').addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('admin-register-form').style.display = 'none';
+    document.getElementById('admin-login-form').style.display = 'block';
+});
+document.getElementById('close-admin-modal-btn').addEventListener('click', function(){
+    document.getElementById('admin-modal').style.display = 'none';
+});
+</script>
+    
+    <footer class="site-footer-main">
+        <p>&copy; 2025 School Monitoring System. All Rights Reserved.</p>
+    </footer>
+
+    <script src="admin_script.js"></script>
+</body>
+</html>
