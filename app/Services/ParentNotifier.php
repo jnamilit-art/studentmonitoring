@@ -11,6 +11,8 @@ use App\Notifications\AnnouncementPostedNotification;
 use App\Notifications\AttendanceLoggedNotification;
 use App\Notifications\BehaviorLoggedNotification;
 use App\Notifications\GradePostedNotification;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Throwable;
@@ -95,6 +97,50 @@ class ParentNotifier
             return;
         }
 
+        // 1. If BREVO_API_KEY is configured, send via Brevo's HTTPS API (Port 443)
+        // This is 100% reliable on Render, where raw SMTP ports (587, 465, 25) are blocked
+        $brevoApiKey = env('BREVO_API_KEY');
+        if (! empty($brevoApiKey) && method_exists($notification, 'toMail')) {
+            try {
+                /** @var MailMessage $mailMessage */
+                $mailMessage = $notification->toMail((object) ['email' => $email]);
+                $html = (string) $mailMessage->render();
+
+                $fromEmail = config('mail.from.address', env('MAIL_FROM_ADDRESS', 'justingeonamilit@gmail.com'));
+                $fromName = config('mail.from.name', env('MAIL_FROM_NAME', 'Student Monitoring System'));
+
+                $response = Http::withHeaders([
+                    'api-key' => $brevoApiKey,
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])->timeout(12)->post('https://api.brevo.com/v3/smtp/email', [
+                    'sender' => [
+                        'name' => $fromName,
+                        'email' => $fromEmail,
+                    ],
+                    'to' => [
+                        ['email' => $email],
+                    ],
+                    'subject' => $mailMessage->subject,
+                    'htmlContent' => $html,
+                ]);
+
+                if ($response->successful()) {
+                    Log::info('Email sent successfully via Brevo HTTPS API.', [
+                        'email' => $email,
+                        'subject' => $mailMessage->subject,
+                        'message_id' => $response->json('messageId'),
+                    ]);
+                    return;
+                }
+
+                Log::warning('Brevo API response error: ' . $response->body(), ['email' => $email]);
+            } catch (Throwable $e) {
+                Log::warning('Failed sending via Brevo API: ' . $e->getMessage(), ['email' => $email]);
+            }
+        }
+
+        // 2. Standard Laravel Notification fallback
         try {
             Notification::route('mail', $email)->notify($notification);
         } catch (Throwable $exception) {
