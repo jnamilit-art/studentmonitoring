@@ -9,6 +9,7 @@ const props = defineProps({
 const form = useForm({
     name: props.student.name,
     parent_email: props.student.parent_email,
+    student_email: props.student.student_email || '',
 });
 
 const submit = () => {
@@ -35,8 +36,14 @@ const submit = () => {
                             <label>Parent's Email</label>
                             <input v-model="form.parent_email" type="email" required>
                         </div>
+                        <div class="form-group">
+                            <label>Student's Email (Optional)</label>
+                            <input v-model="form.student_email" type="email" placeholder="student@example.com">
+                        </div>
                         <div class="toolbar">
-                            <button type="submit" class="btn">Update Student</button>
+                            <button type="submit" class="btn" :disabled="form.processing">
+                                {{ form.processing ? 'Saving...' : 'Update Student' }}
+                            </button>
                             <Link :href="route('teacher.students')" class="btn-secondary">Cancel</Link>
                         </div>
                     </form>
@@ -48,4 +55,3 @@ const submit = () => {
         </div>
     </AdminLayout>
 </template>
-

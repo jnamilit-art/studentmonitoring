@@ -8,8 +8,10 @@ use Illuminate\Notifications\Notification;
 
 class GradePostedNotification extends Notification
 {
-    public function __construct(public Grade $grade)
-    {
+    public function __construct(
+        public Grade $grade,
+        public bool $isStudent = false
+    ) {
         $this->grade->loadMissing('student');
     }
 
@@ -20,16 +22,34 @@ class GradePostedNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $studentName = $this->grade->student?->name ?? 'your child';
+        $studentName = $this->grade->student?->name ?? 'Student';
+
+        $periodLabels = [
+            1 => '1st Grading Period',
+            2 => '2nd Grading Period',
+            3 => '3rd Grading Period',
+            4 => '4th Grading Period',
+        ];
+        $periodText = $periodLabels[(int) $this->grade->grading_period] ?? 'Grading Period '.$this->grade->grading_period;
+
+        $greeting = $this->isStudent
+            ? "Hello {$studentName},"
+            : "Hello Parent / Guardian of {$studentName},";
+
+        $introLine = $this->isStudent
+            ? "Your teacher has updated your grade in the Student Monitoring System:"
+            : "A teacher has posted an updated grade for {$studentName} in the Student Monitoring System:";
 
         return (new MailMessage)
-            ->subject("New grade posted for {$studentName}")
-            ->greeting('Hello,')
-            ->line("A grade was posted for {$studentName} in the Student Monitoring System.")
-            ->line('Subject: '.$this->grade->subject)
-            ->line('Grading period: '.$this->grade->grading_period)
-            ->line('Grade: '.$this->grade->grade)
-            ->action('View grades', url('/parent/grades'))
-            ->line('If you did not expect this message, you can ignore it.');
+            ->subject("Grade Update: {$studentName} — {$this->grade->subject} ({$this->grade->grade})")
+            ->greeting($greeting)
+            ->line($introLine)
+            ->line("**Student Name:** {$studentName}")
+            ->line("**Subject:** {$this->grade->subject}")
+            ->line("**Period:** {$periodText}")
+            ->line("**Grade:** {$this->grade->grade}")
+            ->action('View Academic Records', url('/parent/grades'))
+            ->line('If you have any questions regarding this grade, please reach out to your school or teacher.')
+            ->salutation('Best regards, School Monitoring System');
     }
 }

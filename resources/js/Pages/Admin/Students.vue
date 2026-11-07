@@ -9,6 +9,7 @@ defineProps({
 const form = useForm({
     name: '',
     parent_email: '',
+    student_email: '',
 });
 
 const submit = () => {
@@ -40,13 +41,19 @@ const destroyStudent = (id) => {
                             <form class="form-stack" @submit.prevent="submit">
                                 <div class="form-group">
                                     <label>Full Name</label>
-                                    <input v-model="form.name" type="text" required>
+                                    <input v-model="form.name" type="text" placeholder="e.g. John Doe" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Parent's Email</label>
-                                    <input v-model="form.parent_email" type="email" required>
+                                    <label>Parent's Email (receives notifications)</label>
+                                    <input v-model="form.parent_email" type="email" placeholder="parent@example.com" required>
                                 </div>
-                                <button type="submit" class="btn">Add Student</button>
+                                <div class="form-group">
+                                    <label>Student's Email (Optional - receives notifications)</label>
+                                    <input v-model="form.student_email" type="email" placeholder="student@example.com">
+                                </div>
+                                <button type="submit" class="btn" :disabled="form.processing">
+                                    {{ form.processing ? 'Adding...' : 'Add Student' }}
+                                </button>
                             </form>
                         </div>
 
@@ -55,7 +62,11 @@ const destroyStudent = (id) => {
                             <div v-if="students.length" class="list-stack">
                                 <div v-for="student in students" :key="student.id" class="list-row">
                                     <div class="list-row__content">
-                                        <strong>{{ student.name }}</strong> (Parent Email: {{ student.parent_email }})
+                                        <strong>{{ student.name }}</strong>
+                                        <div style="font-size: 0.9rem; color: #64748b; margin-top: 2px;">
+                                            <span>Parent: {{ student.parent_email }}</span>
+                                            <span v-if="student.student_email" style="margin-left: 12px;">Student: {{ student.student_email }}</span>
+                                        </div>
                                     </div>
                                     <div class="list-row__actions">
                                         <Link :href="route('teacher.students.edit', student.id)" class="btn-inline">Edit</Link>
@@ -74,4 +85,3 @@ const destroyStudent = (id) => {
         </div>
     </AdminLayout>
 </template>
-

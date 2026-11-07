@@ -33,7 +33,7 @@ class GradeController extends Controller
 
         app(ParentNotifier::class)->gradePosted($grade);
 
-        return redirect()->route('teacher.grades')->with('success', 'Grade updated successfully. Parent email sent.');
+        return redirect()->route('teacher.grades')->with('success', 'Grade saved successfully. Email notification sent to parent and student.');
     }
 
     public function edit(Grade $grade): Response
@@ -73,7 +73,7 @@ class GradeController extends Controller
 
         app(ParentNotifier::class)->gradePosted($grade);
 
-        return redirect()->route('teacher.grades')->with('success', 'Grade updated successfully. Parent email sent.');
+        return redirect()->route('teacher.grades')->with('success', 'Grade updated successfully. Email notification sent to parent and student.');
     }
 
     public function destroy(Grade $grade)
@@ -82,4 +82,3 @@ class GradeController extends Controller
         return redirect()->route('teacher.grades')->with('success', 'Grade deleted successfully.');
     }
 }
-

@@ -21,7 +21,19 @@ class ParentNotifier
     {
         $grade->loadMissing('student');
 
-        $this->sendToParent($grade->student, new GradePostedNotification($grade));
+        if (! $grade->student) {
+            return;
+        }
+
+        // Send notification to Parent
+        if ($parentEmail = $grade->student->parent_email) {
+            $this->sendToEmail(strtolower(trim((string) $parentEmail)), new GradePostedNotification($grade, false));
+        }
+
+        // Send notification to Student / Child
+        if ($studentEmail = $grade->student->student_email) {
+            $this->sendToEmail(strtolower(trim((string) $studentEmail)), new GradePostedNotification($grade, true));
+        }
     }
 
     public function attendanceLogged(Attendance $attendance): void
@@ -86,7 +98,7 @@ class ParentNotifier
         try {
             Notification::route('mail', $email)->notify($notification);
         } catch (Throwable $exception) {
-            Log::warning('Failed to send parent email notification.', [
+            Log::warning('Failed to send email notification.', [
                 'email' => $email,
                 'notification' => $notification::class,
                 'error' => $exception->getMessage(),
