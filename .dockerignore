@@ -3,7 +3,7 @@
 .env
 .env.*
 node_modules
-vendor
+# vendor is committed to ensure fast and reliable builds
 tests
 phpunit.xml
 .phpunit.result.cache
