@@ -1,5 +1,19 @@
 # ==============================================================================
-# Stage 1: Build Frontend Assets (Vite + Vue 3)
+# Stage 1: Install Composer Dependencies
+# ==============================================================================
+FROM composer:2 AS vendor
+WORKDIR /app
+
+COPY . .
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --ignore-platform-reqs \
+    --optimize-autoloader
+
+# ==============================================================================
+# Stage 2: Build Frontend Assets (Vite + Vue 3)
 # ==============================================================================
 FROM node:20-alpine AS frontend
 WORKDIR /app
@@ -8,10 +22,12 @@ COPY package*.json ./
 RUN npm ci || npm install
 
 COPY . .
+# Copy vendor from Stage 1 so Ziggy is available for Vite build
+COPY --from=vendor /app/vendor ./vendor
 RUN npm run build
 
 # ==============================================================================
-# Stage 2: Production PHP + Nginx Environment
+# Stage 3: Production PHP + Nginx Environment
 # ==============================================================================
 FROM php:8.3-fpm-alpine
 
@@ -58,7 +74,7 @@ RUN apk add --no-cache \
     mbstring \
     && apk del .build-deps
 
-# Install Composer
+# Copy Composer binary from official composer image
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Copy configuration files
@@ -74,11 +90,11 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
-# Copy compiled frontend assets from Stage 1
-COPY --from=frontend /app/public/build ./public/build
+# Copy pre-installed vendor from Stage 1
+COPY --from=vendor /app/vendor ./vendor
 
-# Install PHP dependencies without dev dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# Copy compiled frontend assets from Stage 2
+COPY --from=frontend /app/public/build ./public/build
 
 # Set file permissions for Laravel storage and cache
 RUN chown -R www-data:www-data storage bootstrap/cache \
