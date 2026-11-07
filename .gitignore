@@ -18,7 +18,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
-/vendor
+# /vendor is committed to avoid Composer network timeouts during cloud builds
 Homestead.json
 Homestead.yaml
 Thumbs.db

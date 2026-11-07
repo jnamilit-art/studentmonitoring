@@ -1,58 +1,27 @@
 # ==============================================================================
-# Stage 1: Install Composer Dependencies
-# ==============================================================================
-FROM composer:2 AS vendor
-WORKDIR /app
-
-# Prevent HTTP/2 multiplexing timeouts on GitHub API and increase timeout
-ENV COMPOSER_HTTP_VERSION=1.1 \
-    COMPOSER_ALLOW_SUPERUSER=1
-
-COPY . .
-
-# Configure composer for reliable cloud builds with retry mechanism
-RUN composer config -g process-timeout 2000 \
-    && composer config -g max-parallel-http 4 \
-    && n=0; until [ "$n" -ge 3 ]; do \
-        composer install \
-            --no-dev \
-            --no-interaction \
-            --prefer-dist \
-            --ignore-platform-reqs \
-            --optimize-autoloader \
-            --no-progress && break; \
-        n=$((n+1)); \
-        echo "Composer install encountered network timeout, retrying ($n/3)..."; \
-        sleep 5; \
-    done
-
-# ==============================================================================
-# Stage 2: Build Frontend Assets (Vite + Vue 3)
+# Stage 1: Build Frontend Assets (Vite + Vue 3)
+# vendor/ is committed to the repo — no composer install needed during build
 # ==============================================================================
 FROM node:20-alpine AS frontend
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci || npm install
+RUN npm ci
 
 COPY . .
-# Copy vendor from Stage 1 so Ziggy is available for Vite build
-COPY --from=vendor /app/vendor ./vendor
 RUN npm run build
 
 # ==============================================================================
-# Stage 3: Production PHP + Nginx Environment
+# Stage 2: Production PHP + Nginx Environment
 # ==============================================================================
 FROM php:8.3-fpm-alpine
 
 # Set environment
 ENV APP_ENV=production \
     APP_DEBUG=false \
-    LOG_CHANNEL=stderr \
-    COMPOSER_ALLOW_SUPERUSER=1 \
-    COMPOSER_HTTP_VERSION=1.1
+    LOG_CHANNEL=stderr
 
-# Install system dependencies & build tools
+# Install system dependencies & PHP extensions
 RUN apk add --no-cache \
     bash \
     nginx \
@@ -89,7 +58,7 @@ RUN apk add --no-cache \
     mbstring \
     && apk del .build-deps
 
-# Copy Composer binary from official composer image
+# Copy Composer binary (needed only for dump-autoload during entrypoint if ever)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Copy configuration files
@@ -99,19 +68,15 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy application (vendor/ is committed in the repo, so it comes with COPY . .)
 COPY . .
 
-# Copy pre-installed vendor from Stage 1
-COPY --from=vendor /app/vendor ./vendor
-
-# Copy compiled frontend assets from Stage 2
+# Copy compiled frontend assets from Stage 1
 COPY --from=frontend /app/public/build ./public/build
 
-# Set file permissions for Laravel storage and cache
+# Set file permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
