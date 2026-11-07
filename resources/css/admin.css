@@ -287,3 +287,40 @@
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 640px) {
+    .management-table-wrap {
+        border-radius: 14px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .management-table th,
+    .management-table td {
+        padding: 12px 14px;
+        font-size: 0.88rem;
+    }
+
+    .teacher-summary-card {
+        padding: 16px;
+        min-height: 72px;
+    }
+
+    .teacher-summary-card strong {
+        font-size: 1.65rem;
+    }
+
+    .grade-level-card__toggle {
+        gap: 10px;
+    }
+
+    .grade-level-card__chevron {
+        width: 34px;
+        height: 34px;
+        font-size: 1.25rem;
+    }
+
+    .grade-level-panel {
+        padding: 14px;
+        border-radius: 14px;
+    }
+}

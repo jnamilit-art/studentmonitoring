@@ -586,11 +586,16 @@ button {
 }
 
 .table-shell table,
-.grades-table,
+.grades-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 680px;
+}
+
 .mini-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 720px;
+    min-width: 100%;
 }
 
 .table-shell th,
@@ -812,6 +817,81 @@ button {
     box-shadow: var(--shadow-md);
 }
 
+/* Mobile Navigation Toggle (Default hidden on desktop) */
+.mobile-nav-toggle {
+    display: none;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.mobile-nav-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.hamburger-bar {
+    position: relative;
+    width: 22px;
+    height: 2px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: all 0.25s ease-in-out;
+    display: block;
+}
+
+.hamburger-bar::before,
+.hamburger-bar::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 2px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: all 0.25s ease-in-out;
+    left: 0;
+}
+
+.hamburger-bar::before {
+    top: -7px;
+}
+
+.hamburger-bar::after {
+    top: 7px;
+}
+
+.hamburger-bar.is-open {
+    background: transparent !important;
+}
+
+.hamburger-bar.is-open::before {
+    top: 0;
+    transform: rotate(45deg);
+}
+
+.hamburger-bar.is-open::after {
+    top: 0;
+    transform: rotate(-45deg);
+}
+
+@keyframes slideDownNav {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .centered-actions {
     display: flex;
     justify-content: center;
@@ -834,32 +914,70 @@ button {
 
 @media (max-width: 900px) {
     :root {
-        --header-height: 118px;
+        --header-height: 76px;
     }
 
     .site-header {
         height: auto;
         min-height: var(--header-height);
-        padding: 14px 0;
+        padding: 12px 0;
     }
 
     .site-header__inner {
         width: min(calc(100% - 28px), var(--content-width));
-        flex-direction: column;
-        align-items: stretch;
-        gap: 16px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
     }
 
     .logo-container {
-        justify-content: center;
+        justify-content: flex-start;
+        flex: 1;
+        min-width: 0;
     }
 
     .logo-copy {
-        text-align: center;
+        text-align: left;
+    }
+
+    .mobile-nav-toggle {
+        display: flex;
     }
 
     .main-nav {
-        justify-content: center;
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background: linear-gradient(180deg, #2423a5 0%, #1e1d90 100%);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 18px;
+        padding: 14px;
+        margin-top: 8px;
+        box-shadow: 0 16px 38px rgba(10, 8, 50, 0.35);
+        gap: 6px;
+        align-items: stretch;
+    }
+
+    .main-nav.main-nav--open {
+        display: flex;
+        animation: slideDownNav 0.22s ease-out;
+    }
+
+    .main-nav a,
+    .main-nav button {
+        width: 100%;
+        text-align: left;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .main-nav a:hover,
+    .main-nav button:hover {
+        background: rgba(255, 255, 255, 0.2);
     }
 
     .hero-panel,
@@ -897,21 +1015,143 @@ button {
 }
 
 @media (max-width: 640px) {
-    .hero-panel h1,
-    .section-heading h2,
-    .page-heading h1,
-    .content-panel__title {
+    :root {
+        --header-height: 70px;
+    }
+
+    .hero-panel {
+        padding: 28px 18px;
+    }
+
+    .hero-panel h1 {
+        font-size: clamp(1.85rem, 6vw, 2.6rem);
+        line-height: 1.15;
         word-break: break-word;
     }
 
-    .main-nav a,
-    .main-nav button {
-        font-size: 0.95rem;
-        padding: 9px 12px;
+    .hero-panel p {
+        font-size: 1.02rem;
+        line-height: 1.55;
+    }
+
+    .section-shell {
+        padding: 48px 14px;
+    }
+
+    .page-shell {
+        padding: 24px 14px 48px;
+    }
+
+    .section-heading h2,
+    .page-heading h1,
+    .content-panel__title {
+        font-size: clamp(1.8rem, 6vw, 2.6rem);
+        word-break: break-word;
+    }
+
+    .section-heading p,
+    .page-heading p {
+        font-size: 1.05rem;
+    }
+
+    .auth-card {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
+
+    .auth-card h1 {
+        font-size: 1.85rem;
+        margin: 12px 0 20px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select,
+    .input-group input,
+    .input-group textarea,
+    .input-group select,
+    .field-input {
+        min-height: 50px;
+        padding: 12px 14px;
+        font-size: 16px; /* Prevents auto-zoom on mobile Safari */
+    }
+
+    .btn-submit,
+    .btn-primary {
+        min-height: 50px;
+        font-size: 1rem;
     }
 
     .table-shell {
-        padding-left: 12px;
-        padding-right: 12px;
+        padding: 14px 12px 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-shell th,
+    .table-shell td,
+    .grades-table th,
+    .grades-table td {
+        padding: 12px 10px;
+        font-size: 0.88rem;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --header-height: 66px;
+    }
+
+    .logo-container {
+        gap: 8px;
+    }
+
+    .logo-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+
+    .logo-symbol {
+        width: 24px;
+        height: 24px;
+    }
+
+    .logo-title {
+        font-size: 0.95rem;
+        line-height: 1.15;
+    }
+
+    .school-badge {
+        font-size: 8.5px;
+        padding: 2px 6px;
+    }
+
+    .feature-card,
+    .dashboard-card,
+    .management-card,
+    .content-panel {
+        padding: 20px 16px;
+        border-radius: 16px;
+    }
+
+    .feature-card h3,
+    .dashboard-card__title,
+    .management-card__title {
+        font-size: 1.35rem;
+    }
+
+    .feature-card p,
+    .management-card p,
+    .dashboard-card p,
+    .announcement-card p {
+        font-size: 0.98rem;
+    }
+
+    .action-row {
+        flex-direction: column;
+    }
+
+    .action-row .btn-primary {
+        width: 100%;
     }
 }

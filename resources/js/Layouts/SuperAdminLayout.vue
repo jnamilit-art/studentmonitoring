@@ -40,12 +40,14 @@ import { Link } from '@inertiajs/vue3';
     color: inherit;
     font-weight: 700;
     text-decoration: none;
+    font-size: 1.1rem;
 }
 
 nav {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 nav :deep(a),
@@ -56,5 +58,38 @@ nav :deep(button) {
     cursor: pointer;
     font: inherit;
     text-decoration: none;
+    font-size: 0.95rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+}
+
+nav :deep(a):hover,
+nav :deep(button):hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 768px) {
+    .super-admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+        gap: 0.85rem;
+    }
+
+    .super-admin-brand {
+        font-size: 1rem;
+    }
+
+    nav {
+        width: 100%;
+        gap: 0.5rem;
+    }
+
+    nav :deep(a),
+    nav :deep(button) {
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 0.88rem;
+    }
 }
 </style>

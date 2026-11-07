@@ -1,12 +1,22 @@
 <script setup>
 import '../../css/barol.css';
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user ?? null);
 const currentSchool = computed(() => page.props.currentSchool ?? null);
+const mobileMenuOpen = ref(false);
+
+const toggleMobileMenu = () => {
+    mobileMenuOpen.value = !mobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+    mobileMenuOpen.value = false;
+};
+
 const isParentSection = computed(() => route().current('parent.*'));
 const isParentRegister = computed(() => route().current('register') || route().current('parent.register'));
 const isTeacherSection = computed(() => route().current('teacher.*'));
@@ -42,9 +52,9 @@ const homeRoute = computed(() => {
 
 <template>
     <div class="site-shell">
-        <header class="site-header">
+        <header class="site-header" :class="{ 'site-header--menu-open': mobileMenuOpen }">
             <div class="site-header__inner">
-                <Link :href="homeRoute" class="logo-container">
+                <Link :href="homeRoute" class="logo-container" @click="closeMobileMenu">
                     <span class="logo-mark" aria-hidden="true">
                         <svg class="logo-symbol" viewBox="0 0 64 64" role="img">
                             <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.14" />
@@ -88,17 +98,29 @@ const homeRoute = computed(() => {
                     </span>
                 </Link>
 
-                <nav class="main-nav">
-                    <Link :href="homeRoute">Home</Link>
-                    <a :href="`${route('home')}#features`">About</a>
-                    <a :href="`${route('home')}#contact`">Contact</a>
+                <!-- Mobile Hamburger Button -->
+                <button
+                    type="button"
+                    class="mobile-nav-toggle"
+                    :aria-expanded="mobileMenuOpen"
+                    aria-label="Toggle navigation menu"
+                    @click="toggleMobileMenu"
+                >
+                    <span class="hamburger-bar" :class="{ 'is-open': mobileMenuOpen }"></span>
+                </button>
+
+                <!-- Navigation Links -->
+                <nav class="main-nav" :class="{ 'main-nav--open': mobileMenuOpen }">
+                    <Link :href="homeRoute" @click="closeMobileMenu">Home</Link>
+                    <a :href="`${route('home')}#features`" @click="closeMobileMenu">About</a>
+                    <a :href="`${route('home')}#contact`" @click="closeMobileMenu">Contact</a>
 
                     <template v-if="!user">
-                        <Link :href="route('parent.login')">Parent Log in</Link>
-                        <Link :href="route('teacher.login')">Teacher Log in</Link>
-                        <Link :href="route('admin.login')">Admin Log in</Link>
+                        <Link :href="route('parent.login')" @click="closeMobileMenu">Parent Log in</Link>
+                        <Link :href="route('teacher.login')" @click="closeMobileMenu">Teacher Log in</Link>
+                        <Link :href="route('admin.login')" @click="closeMobileMenu">Admin Log in</Link>
                     </template>
-                    <Link v-else :href="route('logout')" method="post" as="button">Log out</Link>
+                    <Link v-else :href="route('logout')" method="post" as="button" @click="closeMobileMenu">Log out</Link>
                 </nav>
             </div>
         </header>
