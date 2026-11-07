@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: pilot-school-system
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_NAME
+        value: School Monitoring System
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        generateValue: true
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: mysql
+      - key: AUTO_MIGRATE
+        value: "true"
+      # Fill these in the Render dashboard or connect a database
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # AWS S3 Storage for permanent photos and documents
+      - key: FILESYSTEM_DISK
+        value: s3
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_DEFAULT_REGION
+        value: us-east-1
+      - key: AWS_BUCKET
+        sync: false
+      - key: AWS_USE_PATH_STYLE_ENDPOINT
+        value: "false"
