@@ -4,13 +4,27 @@
 FROM composer:2 AS vendor
 WORKDIR /app
 
+# Prevent HTTP/2 multiplexing timeouts on GitHub API and increase timeout
+ENV COMPOSER_HTTP_VERSION=1.1 \
+    COMPOSER_ALLOW_SUPERUSER=1
+
 COPY . .
-RUN composer install \
-    --no-dev \
-    --no-interaction \
-    --prefer-dist \
-    --ignore-platform-reqs \
-    --optimize-autoloader
+
+# Configure composer for reliable cloud builds with retry mechanism
+RUN composer config -g process-timeout 2000 \
+    && composer config -g max-parallel-http 4 \
+    && n=0; until [ "$n" -ge 3 ]; do \
+        composer install \
+            --no-dev \
+            --no-interaction \
+            --prefer-dist \
+            --ignore-platform-reqs \
+            --optimize-autoloader \
+            --no-progress && break; \
+        n=$((n+1)); \
+        echo "Composer install encountered network timeout, retrying ($n/3)..."; \
+        sleep 5; \
+    done
 
 # ==============================================================================
 # Stage 2: Build Frontend Assets (Vite + Vue 3)
@@ -35,7 +49,8 @@ FROM php:8.3-fpm-alpine
 ENV APP_ENV=production \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
-    COMPOSER_ALLOW_SUPERUSER=1
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_HTTP_VERSION=1.1
 
 # Install system dependencies & build tools
 RUN apk add --no-cache \
