@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,13 +13,18 @@ class SuperAdminSeeder extends Seeder
      */
     public function run(): void
     {
+        $email = env('SUPER_ADMIN_EMAIL', 'superadmin@example.com');
+        $password = env('SUPER_ADMIN_PASSWORD', 'password');
+        $name = env('SUPER_ADMIN_NAME', 'Super Admin');
+
         User::updateOrCreate(
-            ['email' => 'superadmin@example.com'],
+            ['email' => $email],
             [
-                'name' => 'Super Admin',
-                'email' => 'superadmin@example.com',
-                'password' => Hash::make('password'),
+                'name' => $name,
+                'email' => $email,
+                'password' => Hash::make($password),
                 'role' => 'super_admin',
+                'email_verified_at' => now(),
             ]
         );
     }

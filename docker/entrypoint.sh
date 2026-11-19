@@ -29,10 +29,13 @@ if [ -n "$APP_KEY" ]; then
     php artisan view:cache || true
 fi
 
-# Run database migrations if enabled
+# Run database migrations and ensure Super Admin exists
 if [ "${AUTO_MIGRATE:-false}" = "true" ] || [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     echo "Running database migrations..."
     php artisan migrate --force || true
+
+    echo "Ensuring Super Admin account is provisioned..."
+    php artisan db:seed --class=SuperAdminSeeder --force || true
 fi
 
 echo "Starting Supervisor (Nginx + PHP-FPM)..."
