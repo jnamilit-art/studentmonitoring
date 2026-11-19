@@ -42,7 +42,11 @@ const submit = () => {
                     </div>
                     <button type="submit" class="btn">Log In</button>
                 </form>
-                            </div>
+                <p class="auth-helper">
+                    Need to create an admin account for this school?
+                    <Link :href="route('admin.register')">Register here</Link>
+                </p>
+            </div>
         </div>
     </SiteLayout>
 </template>

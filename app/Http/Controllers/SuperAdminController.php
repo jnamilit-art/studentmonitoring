@@ -134,4 +134,25 @@ class SuperAdminController extends Controller
             ]),
         ]);
     }
+
+    public function storeSchoolUser(Request $request, School $school): \Illuminate\Http\RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:admin,teacher,parent',
+            'password' => 'required|string|min:6',
+        ]);
+
+        User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+            'school_id' => $school->id,
+            'email_verified_at' => now(),
+        ]);
+
+        return back()->with('success', 'User ' . $validated['name'] . ' added to ' . $school->name . ' successfully!');
+    }
 }

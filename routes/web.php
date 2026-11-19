@@ -86,6 +86,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->name('su
     Route::put('/schools/{school}', [SuperAdminController::class, 'updateSchool'])->name('schools.update');
     Route::delete('/schools/{school}', [SuperAdminController::class, 'destroySchool'])->name('schools.destroy');
     Route::get('/schools/{school}', [SuperAdminController::class, 'schoolDetails'])->name('school.details');
+    Route::post('/schools/{school}/users', [SuperAdminController::class, 'storeSchoolUser'])->name('school.users.store');
 });
 
 Route::middleware('auth')->group(function () {

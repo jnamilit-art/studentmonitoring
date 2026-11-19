@@ -1,12 +1,40 @@
 <script setup>
 import SuperAdminLayout from '@/Layouts/SuperAdminLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({
     school: Object,
     users: Array,
     students: Array,
 });
+
+const showAddUserModal = ref(false);
+
+const userForm = useForm({
+    name: '',
+    email: '',
+    role: 'admin',
+    password: '',
+});
+
+const openAddUser = () => {
+    userForm.reset();
+    showAddUserModal.value = true;
+};
+
+const closeAddUser = () => {
+    showAddUserModal.value = false;
+    userForm.reset();
+};
+
+const submitUserForm = () => {
+    userForm.post(route('super_admin.school.users.store', props.school.id), {
+        onSuccess: () => {
+            closeAddUser();
+        },
+    });
+};
 </script>
 
 <template>
@@ -76,8 +104,15 @@ const props = defineProps({
                     </div>
                 </div>
 
+                <!-- Users Section -->
                 <div class="data-section">
-                    <h2>Users ({{ users.length }})</h2>
+                    <div class="section-header-row">
+                        <h2>Users ({{ users.length }})</h2>
+                        <button @click="openAddUser" class="btn btn-primary btn-sm">
+                            + Add User / Admin
+                        </button>
+                    </div>
+
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -107,6 +142,7 @@ const props = defineProps({
                     </div>
                 </div>
 
+                <!-- Students Section -->
                 <div class="data-section">
                     <h2>Students ({{ students.length }})</h2>
                     <div class="table-container">
@@ -129,6 +165,47 @@ const props = defineProps({
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Add User Modal -->
+                <div v-if="showAddUserModal" class="modal-overlay" @click="closeAddUser">
+                    <div class="modal-content" @click.stop>
+                        <div class="modal-header">
+                            <h2>Add User to {{ school.name }}</h2>
+                            <button class="btn-close" @click="closeAddUser">&times;</button>
+                        </div>
+                        <form @submit.prevent="submitUserForm" class="form">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input v-model="userForm.name" type="text" class="form-control" placeholder="e.g. Maria Santos" required />
+                                <p v-if="userForm.errors.name" class="error-text">{{ userForm.errors.name }}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input v-model="userForm.email" type="email" class="form-control" placeholder="e.g. admin@school.com" required />
+                                <p v-if="userForm.errors.email" class="error-text">{{ userForm.errors.email }}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Role</label>
+                                <select v-model="userForm.role" class="form-control" required>
+                                    <option value="admin">School Admin (Full Management)</option>
+                                    <option value="teacher">Teacher (Classroom & Grades)</option>
+                                    <option value="parent">Parent</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Password (min. 6 characters)</label>
+                                <input v-model="userForm.password" type="password" class="form-control" placeholder="••••••••" required />
+                                <p v-if="userForm.errors.password" class="error-text">{{ userForm.errors.password }}</p>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" @click="closeAddUser" class="btn btn-secondary">Cancel</button>
+                                <button type="submit" class="btn btn-primary" :disabled="userForm.processing">
+                                    {{ userForm.processing ? 'Saving...' : 'Create User' }}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -224,9 +301,16 @@ const props = defineProps({
 }
 
 .data-section h2 {
-    margin: 0 0 1rem 0;
+    margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
+}
+
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
 .table-container {
@@ -305,5 +389,128 @@ const props = defineProps({
 
 .text-center {
     text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
+
+.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 1.75rem;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.form-control {
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.error-text {
+    margin: 0;
+    color: #ef4444;
+    font-size: 0.8rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }
 </style>
