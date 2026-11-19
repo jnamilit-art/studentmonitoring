@@ -46,7 +46,11 @@ class AdminLoginController extends Controller
         // Check if user is accessing a school subdomain
         $currentSchool = app()->bound('current_school') ? app('current_school') : null;
 
-        if ($currentSchool && $user->school_id !== $currentSchool->id) {
+        if (! $user->school_id && $currentSchool) {
+            $user->update(['school_id' => $currentSchool->id]);
+        }
+
+        if ($currentSchool && $user->school_id && $user->school_id !== $currentSchool->id) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

@@ -25,9 +25,12 @@ class ParentLoginController extends Controller
             $request->session()->regenerateToken();
         }
 
+        $school = app()->bound('current_school') ? app('current_school') : null;
+
         return Inertia::render('Auth/ParentLogin', [
             'status' => session('status'),
             'students' => Student::query()
+                ->when($school, fn ($q) => $q->where('school_id', $school->id))
                 ->orderBy('name')
                 ->get(['id', 'name']),
         ]);
@@ -61,7 +64,11 @@ class ParentLoginController extends Controller
         // Check if user is accessing a school subdomain
         $currentSchool = app()->bound('current_school') ? app('current_school') : null;
 
-        if ($currentSchool && $user->school_id !== $currentSchool->id) {
+        if (! $user->school_id && $currentSchool) {
+            $user->update(['school_id' => $currentSchool->id]);
+        }
+
+        if ($currentSchool && $user->school_id && $user->school_id !== $currentSchool->id) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

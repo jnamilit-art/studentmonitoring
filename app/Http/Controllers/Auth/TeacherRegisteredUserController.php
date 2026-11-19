@@ -37,6 +37,17 @@ class TeacherRegisteredUserController extends Controller
         ]);
 
         $school = app()->bound('current_school') ? app('current_school') : null;
+        $schoolId = $school?->id;
+
+        if (! $schoolId && $request->session()->has('active_school_subdomain')) {
+            $sessionSubdomain = $request->session()->get('active_school_subdomain');
+            $sessionSchool = \App\Models\School::whereRaw('LOWER(subdomain) = ?', [strtolower($sessionSubdomain)])->first();
+            $schoolId = $sessionSchool?->id;
+        }
+
+        if (! $schoolId && \App\Models\School::count() === 1) {
+            $schoolId = \App\Models\School::first()->id;
+        }
 
         $user = User::create([
             'name' => $request->name,
@@ -44,7 +55,7 @@ class TeacherRegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'teacher',
             'grade_level' => $request->grade_level,
-            'school_id' => $school?->id,
+            'school_id' => $schoolId,
         ]);
 
         event(new Registered($user));

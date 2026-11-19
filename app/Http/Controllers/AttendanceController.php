@@ -28,7 +28,15 @@ class AttendanceController extends Controller
 
     public function edit(Attendance $attendance): Response
     {
-        $students = Student::orderBy('name')->get();
+        $teacher = auth()->user();
+        $school = app()->bound('current_school') ? app('current_school') : null;
+        $schoolId = $school?->id ?? $teacher?->school_id;
+
+        $students = Student::query()
+            ->when($schoolId, fn ($q) => $q->where('school_id', $schoolId))
+            ->when($teacher?->grade_level, fn ($q) => $q->where('grade_level', $teacher->grade_level))
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('Admin/AttendanceEdit', [
             'attendance' => [

@@ -13,25 +13,54 @@ use Inertia\Response;
 
 class TeacherController extends Controller
 {
+    private function getTeacherStudentsQuery()
+    {
+        $teacher = Auth::user();
+        $school = app()->bound('current_school') ? app('current_school') : null;
+        $schoolId = $school?->id ?? $teacher?->school_id;
+
+        $query = Student::query();
+
+        if ($schoolId) {
+            $query->where('school_id', $schoolId);
+        }
+
+        if ($teacher?->grade_level) {
+            $query->where('grade_level', $teacher->grade_level);
+        }
+
+        return $query;
+    }
+
     public function dashboard(): Response
     {
         $teacher = Auth::user();
+        $studentsQuery = $this->getTeacherStudentsQuery();
+        $studentIds = (clone $studentsQuery)->pluck('id');
+        $studentsCount = (clone $studentsQuery)->count();
+
         $latestAnnouncement = Announcement::query()
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->first();
+
         $recentGrades = Grade::query()
+            ->whereIn('student_id', $studentIds)
             ->with('student')
             ->orderByDesc('created_at')
             ->limit(5)
             ->get();
+
         $recentAttendance = Attendance::query()
+            ->whereIn('student_id', $studentIds)
             ->with('student')
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->limit(5)
             ->get();
+
         $recentBehavior = Behavior::query()
+            ->whereIn('student_id', $studentIds)
             ->with('student')
             ->orderByDesc('date')
             ->orderByDesc('id')
@@ -44,9 +73,9 @@ class TeacherController extends Controller
                 'grade_level' => $teacher?->grade_level,
             ],
             'stats' => [
-                'students' => Student::query()->count(),
-                'grades' => Grade::query()->count(),
-                'attendance' => Attendance::query()->count(),
+                'students' => $studentsCount,
+                'grades' => Grade::whereIn('student_id', $studentIds)->count(),
+                'attendance' => Attendance::whereIn('student_id', $studentIds)->count(),
                 'announcements' => Announcement::query()->count(),
             ],
             'latestAnnouncement' => $latestAnnouncement ? [
@@ -93,13 +122,18 @@ class TeacherController extends Controller
 
     public function manageGrades(): Response
     {
-        $students = Student::orderBy('name')->get();
-        $grades = Grade::with('student')->orderBy('created_at', 'desc')->get();
+        $students = $this->getTeacherStudentsQuery()->orderBy('name')->get();
+        $studentIds = $students->pluck('id');
+        $grades = Grade::with('student')
+            ->whereIn('student_id', $studentIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return Inertia::render('Admin/Grades', [
             'students' => $students->map(fn (Student $student) => [
                 'id' => $student->id,
                 'name' => $student->name,
+                'grade_level' => $student->grade_level,
             ]),
             'grades' => $grades->map(fn (Grade $grade) => [
                 'id' => $grade->id,
@@ -114,13 +148,19 @@ class TeacherController extends Controller
 
     public function manageAttendance(): Response
     {
-        $students = Student::orderBy('name')->get();
-        $attendances = Attendance::with('student')->orderBy('date', 'desc')->limit(10)->get();
+        $students = $this->getTeacherStudentsQuery()->orderBy('name')->get();
+        $studentIds = $students->pluck('id');
+        $attendances = Attendance::with('student')
+            ->whereIn('student_id', $studentIds)
+            ->orderBy('date', 'desc')
+            ->limit(20)
+            ->get();
 
         return Inertia::render('Admin/Attendance', [
             'students' => $students->map(fn (Student $student) => [
                 'id' => $student->id,
                 'name' => $student->name,
+                'grade_level' => $student->grade_level,
             ]),
             'attendances' => $attendances->map(fn (Attendance $attendance) => [
                 'id' => $attendance->id,
@@ -134,13 +174,19 @@ class TeacherController extends Controller
 
     public function manageBehavior(): Response
     {
-        $students = Student::orderBy('name')->get();
-        $behaviors = Behavior::with('student')->orderBy('date', 'desc')->limit(10)->get();
+        $students = $this->getTeacherStudentsQuery()->orderBy('name')->get();
+        $studentIds = $students->pluck('id');
+        $behaviors = Behavior::with('student')
+            ->whereIn('student_id', $studentIds)
+            ->orderBy('date', 'desc')
+            ->limit(20)
+            ->get();
 
         return Inertia::render('Admin/Behavior', [
             'students' => $students->map(fn (Student $student) => [
                 'id' => $student->id,
                 'name' => $student->name,
+                'grade_level' => $student->grade_level,
             ]),
             'behaviors' => $behaviors->map(fn (Behavior $behavior) => [
                 'id' => $behavior->id,
@@ -155,14 +201,19 @@ class TeacherController extends Controller
 
     public function manageStudents(): Response
     {
-        $students = Student::orderBy('name')->get();
+        $teacher = Auth::user();
+        $students = $this->getTeacherStudentsQuery()->orderBy('name')->get();
 
         return Inertia::render('Admin/Students', [
             'students' => $students->map(fn (Student $student) => [
                 'id' => $student->id,
                 'name' => $student->name,
                 'parent_email' => $student->parent_email,
+                'student_email' => $student->student_email,
+                'grade_level' => $student->grade_level,
             ]),
+            'teacherGradeLevel' => $teacher?->grade_level,
+            'gradeLevels' => \App\Models\GradeLevel::orderBy('title')->pluck('title'),
         ]);
     }
 }

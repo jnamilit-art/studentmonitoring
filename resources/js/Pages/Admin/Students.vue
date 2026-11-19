@@ -2,19 +2,25 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 
-defineProps({
+const props = defineProps({
     students: Array,
+    gradeLevels: Array,
+    teacherGradeLevel: String,
 });
 
 const form = useForm({
     name: '',
     parent_email: '',
     student_email: '',
+    grade_level: props.teacherGradeLevel || '',
 });
 
 const submit = () => {
     form.post(route('teacher.students.store'), {
-        onSuccess: () => form.reset(),
+        onSuccess: () => {
+            form.reset();
+            form.grade_level = props.teacherGradeLevel || '';
+        },
     });
 };
 
@@ -44,6 +50,14 @@ const destroyStudent = (id) => {
                                     <input v-model="form.name" type="text" placeholder="e.g. John Doe" required>
                                 </div>
                                 <div class="form-group">
+                                    <label>Grade Level</label>
+                                    <select v-model="form.grade_level">
+                                        <option value="">-- Select Grade Level --</option>
+                                        <option v-for="gl in gradeLevels" :key="gl" :value="gl">{{ gl }}</option>
+                                    </select>
+                                    <p v-if="form.errors.grade_level" class="error-text">{{ form.errors.grade_level }}</p>
+                                </div>
+                                <div class="form-group">
                                     <label>Parent's Email (receives notifications)</label>
                                     <input v-model="form.parent_email" type="email" placeholder="parent@example.com" required>
                                 </div>
@@ -64,6 +78,7 @@ const destroyStudent = (id) => {
                                     <div class="list-row__content">
                                         <strong>{{ student.name }}</strong>
                                         <div style="font-size: 0.9rem; color: #64748b; margin-top: 2px;">
+                                            <span v-if="student.grade_level" style="margin-right: 12px;">📚 {{ student.grade_level }}</span>
                                             <span>Parent: {{ student.parent_email }}</span>
                                             <span v-if="student.student_email" style="margin-left: 12px;">Student: {{ student.student_email }}</span>
                                         </div>

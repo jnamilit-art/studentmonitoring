@@ -28,8 +28,13 @@ class RegisteredUserController extends Controller
             $request->session()->regenerateToken();
         }
 
+        $school = app()->bound('current_school') ? app('current_school') : null;
+
         return Inertia::render('Auth/Register', [
-            'students' => Student::orderBy('name')->get(['id', 'name']),
+            'students' => Student::query()
+                ->when($school, fn ($q) => $q->where('school_id', $school->id))
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
 
@@ -43,13 +48,29 @@ class RegisteredUserController extends Controller
         ]);
 
         $school = app()->bound('current_school') ? app('current_school') : null;
+        $schoolId = $school?->id;
+
+        if (! $schoolId && $request->session()->has('active_school_subdomain')) {
+            $sessionSubdomain = $request->session()->get('active_school_subdomain');
+            $sessionSchool = \App\Models\School::whereRaw('LOWER(subdomain) = ?', [strtolower($sessionSubdomain)])->first();
+            $schoolId = $sessionSchool?->id;
+        }
+
+        if (! $schoolId && $request->student_id) {
+            $selectedStudent = Student::find($request->student_id);
+            $schoolId = $selectedStudent?->school_id;
+        }
+
+        if (! $schoolId && \App\Models\School::count() === 1) {
+            $schoolId = \App\Models\School::first()->id;
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'parent',
-            'school_id' => $school?->id,
+            'school_id' => $schoolId,
         ]);
 
         event(new Registered($user));

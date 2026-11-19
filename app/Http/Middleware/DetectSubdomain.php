@@ -20,12 +20,38 @@ class DetectSubdomain
         $host = $request->getHost();
         $mainDomain = config('app.domain', 'localhost');
 
-        // Check for query parameter override (for local development)
-        if ($request->has('school_subdomain')) {
+        // If accessing super-admin area without an explicit school query param, clear current_school
+        if ($request->is('super-admin*') && ! $request->has('school_subdomain')) {
+            app()->instance('current_school', null);
+            return $next($request);
+        }
+
+        $subdomain = null;
+
+        // 1. Check for query parameter override (persists to session)
+        if ($request->filled('school_subdomain')) {
             $subdomain = $request->get('school_subdomain');
-        } else {
-            // Extract subdomain from host
-            $subdomain = $this->getSubdomain($host, $mainDomain);
+            if ($request->hasSession()) {
+                $request->session()->put('active_school_subdomain', $subdomain);
+            }
+        }
+        // 2. Extract subdomain from host
+        elseif ($hostSubdomain = $this->getSubdomain($host, $mainDomain)) {
+            $subdomain = $hostSubdomain;
+            if ($request->hasSession()) {
+                $request->session()->put('active_school_subdomain', $subdomain);
+            }
+        }
+        // 3. Check session for previously selected school
+        elseif ($request->hasSession() && $request->session()->has('active_school_subdomain')) {
+            $subdomain = $request->session()->get('active_school_subdomain');
+        }
+        // 4. Authenticated user's assigned school
+        elseif ($userSchool = $request->user()?->school) {
+            $subdomain = $userSchool->subdomain;
+            if ($request->hasSession()) {
+                $request->session()->put('active_school_subdomain', $subdomain);
+            }
         }
 
         if ($subdomain) {

@@ -206,8 +206,12 @@ class ParentController extends Controller
             return null;
         }
 
+        $user = Auth::user();
+        $schoolId = $user?->school_id;
+
         return Student::query()
             ->whereRaw('LOWER(TRIM(parent_email)) = ?', [$email])
+            ->when($schoolId, fn ($q) => $q->where('school_id', $schoolId))
             ->first();
     }
 }

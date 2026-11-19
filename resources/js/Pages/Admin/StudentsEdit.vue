@@ -4,12 +4,14 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
     student: Object,
+    gradeLevels: Array,
 });
 
 const form = useForm({
     name: props.student.name,
     parent_email: props.student.parent_email,
     student_email: props.student.student_email || '',
+    grade_level: props.student.grade_level || '',
 });
 
 const submit = () => {
@@ -31,6 +33,13 @@ const submit = () => {
                         <div class="form-group">
                             <label>Full Name</label>
                             <input v-model="form.name" type="text" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Grade Level</label>
+                            <select v-model="form.grade_level">
+                                <option value="">-- Select Grade Level --</option>
+                                <option v-for="gl in gradeLevels" :key="gl" :value="gl">{{ gl }}</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Parent's Email</label>
