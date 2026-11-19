@@ -112,6 +112,7 @@ class SuperAdminController extends Controller
             'school' => [
                 'id' => $school->id,
                 'name' => $school->name,
+                'subdomain' => $school->subdomain,
                 'address' => $school->address,
                 'phone' => $school->phone,
                 'email' => $school->email,

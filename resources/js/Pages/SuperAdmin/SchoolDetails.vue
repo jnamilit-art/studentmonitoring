@@ -54,6 +54,14 @@ const props = defineProps({
                             <label>Created At</label>
                             <p>{{ school.created_at }}</p>
                         </div>
+                        <div v-if="school.subdomain" class="info-item">
+                            <label>Portal Link</label>
+                            <p>
+                                <a :href="`/?school_subdomain=${school.subdomain}`" target="_blank" style="color: #059669; font-weight: 700; text-decoration: none;">
+                                    Open School Portal ↗
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </div>
 

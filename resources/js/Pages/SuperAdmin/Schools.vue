@@ -268,8 +268,8 @@ const openSchoolUrl = (school) => {
                             <tr v-for="school in schools" :key="school.id">
                                 <td>{{ school.name }}</td>
                                 <td>
-                                    <a v-if="school.subdomain" @click.prevent="openSchoolUrl(school)" href="#" class="subdomain-link">
-                                        {{ school.subdomain }}.yoursite.com
+                                    <a v-if="school.subdomain" @click.prevent="openSchoolUrl(school)" href="#" class="subdomain-link" :title="`Open ${school.name} Portal`">
+                                        {{ school.subdomain }} ↗
                                     </a>
                                     <span v-else class="text-muted">-</span>
                                 </td>
@@ -285,6 +285,9 @@ const openSchoolUrl = (school) => {
                                 <td>{{ school.students_count }}</td>
                                 <td>
                                     <div class="action-buttons">
+                                        <button @click="openSchoolUrl(school)" class="btn btn-sm btn-open" title="Open School Portal in new tab">
+                                            Open Portal ↗
+                                        </button>
                                         <Link :href="route('super_admin.school.details', school.id)" class="btn btn-sm btn-view">
                                             View
                                         </Link>
@@ -423,6 +426,15 @@ const openSchoolUrl = (school) => {
 .btn-sm {
     padding: 0.25rem 0.75rem;
     font-size: 0.75rem;
+}
+
+.btn-open {
+    background-color: #059669;
+    color: white;
+}
+
+.btn-open:hover {
+    background-color: #047857;
 }
 
 .btn-view {
